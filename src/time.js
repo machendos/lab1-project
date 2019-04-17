@@ -2,8 +2,6 @@
 
 class Time {
   constructor(hours = 0, mins = 0) {
-    if (typeof hours === 'string') return Time.fromString(hours);
-    if (hours > 24) return Time.fromMinutes(hours);
     this.hours = hours;
     this.mins = mins;
   }
@@ -42,6 +40,47 @@ class Time {
     const mins = this.mins < 10 ? `0${this.mins}` : `${this.mins}`;
     return `${hours}:${mins}`;
   }
+
+  inWords() {
+    const startWith = {
+      hour: 'год',
+      min: 'хвил',
+    };
+
+    const endWith = {
+      exception: count => {
+        if (count === 11) return 'ин';
+      },
+      static: {
+        '0': 'ин',
+        '1': 'ина',
+        '2': 'ини',
+        '3': 'ини',
+        '4': 'ини',
+        '5': 'ин',
+        '6': 'ин',
+        '7': 'ин',
+        '8': 'ин',
+        '9': 'ин',
+      },
+    };
+
+    const noun = (count, prop) => {
+      let [, countEnding] = count.toString();
+      const ending = endWith.exception(count) || endWith.static[countEnding];
+      return startWith[prop] + ending;
+    };
+
+    const hourNoun = noun(this.hours, 'hour');
+    const minNoun = noun(this.mins, 'min');
+    return `${this.hours} ${hourNoun} ${this.mins} ${minNoun}`;
+  }
 }
 
-module.exports = Time;
+const time = (hours, mins) => {
+  if (typeof hours === 'string') return Time.fromString(hours);
+  if (hours > 24) return Time.fromMinutes(hours);
+  return new Time(hours, mins);
+};
+
+module.exports = { Time, time };
